@@ -1,0 +1,1 @@
+searchState.loadedDescShard("aformat_macros", 0, "A no-alloc version of <code>format!</code>, producing an <code>ArrayString</code>.\n<code>aformat!</code>, but you provide your own <code>ArrayString</code>.")

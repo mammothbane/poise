@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["GatewayError","HttpError","ModelError","SerenityError"],"struct":["Client","Context","GatewayIntents","Mutex","RwLock"],"trait":["CacheHttp","EventHandler","Mentionable","RawEventHandler"]};

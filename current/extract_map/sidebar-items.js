@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["serialize_as_map"],"struct":["ExtractMap"],"trait":["ExtractKey","LendingIterator"]};

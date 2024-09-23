@@ -1,0 +1,1 @@
+searchState.loadedDescShard("bool_to_bitflags", 0, "bool-to-bitflags\nSee crate level documentation.")

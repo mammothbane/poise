@@ -1,0 +1,1 @@
+searchState.loadedDescShard("typenum_mappings", 0, "A proc-macro to generate mappings from typenum’s <code>UInt</code> …")

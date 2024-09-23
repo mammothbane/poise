@@ -1,0 +1,52 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A proc-macro to generate mappings from typenum’s `UInt` types to your own type."><title>typenum_mappings - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-9d5ec5f3536319c6.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="typenum_mappings" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (6c6d21008 2024-09-22)" data-channel="nightly" data-search-js="search-0cfde64e8ad3a7fe.js" data-settings-js="settings-7e3bb6c46e92e77c.js" ><script src="../static.files/storage-29b1d5a9048d38fe.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-2a73ac97dd39bfde.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-40f72c9259523cb3.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../typenum_mappings/index.html">typenum_<wbr>mappings</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#example---concat_array" title="Example - `concat_array`">Example - <code>concat_array</code></a><ul><li><a href="#minimum-supported-rust-version" title="Minimum Supported Rust Version">Minimum Supported Rust Version</a></li></ul></li></ul><h3><a href="#macros">Crate Items</a></h3><ul class="block"><li><a href="#macros" title="Macros">Macros</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Crate <a class="mod" href="#">typenum_mappings</a><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><span class="out-of-band"><a class="src" href="../src/typenum_mappings/lib.rs.html#1-237">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A proc-macro to generate mappings from typenum’s <code>UInt</code> types to your own type.</p>
+<p>This is useful when emulating <code>const_generic_exprs</code> on stable, as the third step in the process of:</p>
+<ol>
+<li>Converting const generics to typenum types</li>
+<li>Performing the expression via typenum types</li>
+<li><strong>Converting those typenum types back to the resulting type</strong></li>
+</ol>
+<h2 id="example---concat_array"><a class="doc-anchor" href="#example---concat_array">§</a>Example - <code>concat_array</code></h2>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>std::ops::Add;
+
+<span class="kw">use </span>typenum::{U, ToUInt, Const};
+
+<span class="kw">trait </span>ArrayLike {
+    <span class="kw">fn </span>new() -&gt; <span class="self">Self</span>;
+}
+
+<span class="kw">impl</span>&lt;T: Default, <span class="kw">const </span>N: usize&gt; ArrayLike <span class="kw">for </span>[T; N] {
+    <span class="kw">fn </span>new() -&gt; <span class="self">Self </span>{
+        std::array::from_fn(|<span class="kw">_</span>| T::default())
+    }
+}
+
+<span class="kw">trait </span>TypenumToArray&lt;T&gt; {
+    <span class="kw">type </span>Array: ArrayLike;
+}
+
+<span class="macro">typenum_mappings::impl_typenum_mapping!</span>(
+    <span class="kw">impl</span>&lt;<span class="kw">const </span>N: usize = <span class="number">0</span>..=<span class="number">1000</span>, T: Default&gt; TypenumToArray&lt;T&gt; <span class="kw">for </span>#TypeNumName {
+        <span class="kw">type </span>Array: = [T; N];
+    }
+);
+
+
+<span class="kw">type </span>RunAdd&lt;T1, T2&gt; = &lt;T1 <span class="kw">as </span>Add&lt;T2&gt;&gt;::Output;
+<span class="kw">type </span>RunTypeToArray&lt;T, N&gt; = &lt;N <span class="kw">as </span>TypenumToArray&lt;T&gt;&gt;::Array;
+
+<span class="kw">fn </span>concat_array&lt;<span class="kw">const </span>N1: usize, <span class="kw">const </span>N2: usize, T&gt;(a1: [T; N1], a2: [T; N2]) -&gt; RunTypeToArray&lt;T, RunAdd&lt;U&lt;N1&gt;, U&lt;N2&gt;&gt;&gt;
+<span class="kw">where
+    </span>Const&lt;N1&gt;: ToUInt,
+    Const&lt;N2&gt;: ToUInt,
+
+    U&lt;N1&gt;: Add&lt;U&lt;N2&gt;&gt;,
+    &lt;U&lt;N1&gt; <span class="kw">as </span>Add&lt;U&lt;N2&gt;&gt;&gt;::Output: TypenumToArray&lt;T&gt;
+{
+    <span class="macro">todo!</span>()
+}
+
+<span class="kw">let </span>out = concat_array([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>], [<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]);
+<span class="macro">assert_eq!</span>(out.len(), <span class="number">6</span>);</code></pre></div>
+<h3 id="minimum-supported-rust-version"><a class="doc-anchor" href="#minimum-supported-rust-version">§</a>Minimum Supported Rust Version</h3>
+<p>This is currently <code>1.63</code>, and it is considered a breaking change to increase.</p>
+</div></details><h2 id="macros" class="section-header">Macros<a href="#macros" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="macro" href="macro.impl_typenum_mapping.html" title="macro typenum_mappings::impl_typenum_mapping">impl_<wbr>typenum_<wbr>mapping</a></div></li></ul></section></div></main></body></html>

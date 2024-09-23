@@ -1,0 +1,1 @@
+searchState.loadedDescShard("procout", 0, "<strong>What:</strong> It prints the output of a <em>procedural</em> macro to a file.…\nThe format used for default timestamped file names\nHandle printing code to a file")

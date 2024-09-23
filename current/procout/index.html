@@ -1,0 +1,81 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="What: It prints the output of a procedural macro to a file.Wherefore: To ease debugging by clarifying the source  of errors with explicit line numbers instead of the unavoidably opaque errors often produced when debugging procedural macros in Rust.Whereby:Insert a function call to `procout` into your proc macro.Add a feature to a crate’s `Cargo.toml` to activate the `procout/procout` feature.Enable your new feature on the command line anytime you want to print your macro output to a file.This depends on the procedural macro compiling to code. If it’s not at the stage where it compiles, it has to get there before this will produce useful output."><title>procout - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-46f98efaafac5295.ttf.woff2,FiraSans-Regular-018c141bf0843ffd.woff2,FiraSans-Medium-8f9a781e4970d388.woff2,SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2,SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-9d5ec5f3536319c6.css"><meta name="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="procout" data-themes="" data-resource-suffix="" data-rustdoc-version="1.83.0-nightly (6c6d21008 2024-09-22)" data-channel="nightly" data-search-js="search-0cfde64e8ad3a7fe.js" data-settings-js="settings-7e3bb6c46e92e77c.js" ><script src="../static.files/storage-29b1d5a9048d38fe.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-2a73ac97dd39bfde.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-40f72c9259523cb3.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle" title="show sidebar"></button></nav><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../procout/index.html">procout</a><span class="version">0.1.13</span></h2></div><div class="sidebar-elems"><ul class="block"><li><a id="all-types" href="all.html">All Items</a></li></ul><section id="rustdoc-toc"><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#whereby" title="Whereby">Whereby</a><ul><li><a href="#now-with-these-splendid-new-capabilities" title="Now with these splendid new capabilities:">Now with these splendid new capabilities:</a></li><li><a href="#warning" title="Warning:">Warning:</a></li></ul></li><li><a href="#features" title="Features">Features</a></li></ul><h3><a href="#statics">Crate Items</a></h3><ul class="block"><li><a href="#statics" title="Statics">Statics</a></li><li><a href="#functions" title="Functions">Functions</a></li></ul></section><div id="rustdoc-modnav"></div></div></nav><div class="sidebar-resizer"></div><main><div class="width-limiter"><rustdoc-search></rustdoc-search><section id="main-content" class="content"><div class="main-heading"><h1>Crate <a class="mod" href="#">procout</a><button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><span class="out-of-band"><a class="src" href="../src/procout/lib.rs.html#1-238">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><ul>
+<li><strong>What:</strong> It prints the output of a <em>procedural</em> macro to a file.</li>
+<li><strong>Wherefore:</strong> To ease debugging by clarifying the source  of errors with explicit line numbers instead of the unavoidably opaque errors often produced when debugging
+procedural macros in Rust.</li>
+<li><strong>Whereby:</strong>
+<ol>
+<li>Insert a function call to <code>procout</code> into your proc macro.</li>
+<li>Add a feature to a crate’s <code>Cargo.toml</code> to activate the <code>procout/procout</code> feature.</li>
+<li>Enable your new feature on the command line anytime you want to print your macro output to a file.</li>
+</ol>
+</li>
+</ul>
+<p>This depends on the procedural macro <em>compiling</em> to code. If it’s not at the stage where it compiles,
+it has to get there before this will produce useful output.</p>
+<h3 id="whereby"><a class="doc-anchor" href="#whereby">§</a>Whereby</h3>
+<p><code>procout</code> exports a single function <code>procout</code> that takes three parameters
+<code>code_block: &amp;TokenStream</code>    The code that should be printed (<a href="../proc_macro2/struct.TokenStream.html" title="struct proc_macro2::TokenStream">proc_macro2::TokenStream</a>)
+<code>module_ident: Option&lt;Ident&gt;</code>    The optional name of a top-level module generated by the macro.
+<code>output_path: Option&lt;&amp;str&gt;</code>    The directory to write the file to.</p>
+<p>Given a procedural macro’s constructed as so:</p>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">use </span>proc_macro::{TokenStream};
+<span class="kw">use </span>proc_macro2::{Span};
+<span class="kw">use </span>quote::{quote};
+<span class="kw">use </span>syn::{Ident};
+ 
+<span class="attr">#[proc_macro]
+</span><span class="kw">pub fn </span>ast(input: TokenStream) -&gt; TokenStream {
+  <span class="kw">let </span>module_ident = Ident::new(<span class="string">"this_module"</span>, Span::mixed_site());
+  <span class="kw">let </span>code_block: proc_macro2::TokenStream = <span class="macro">quote!</span>{  
+     <span class="kw">pub mod </span>#module_ident {
+       <span class="comment">/* ... some truly fantastic code, well done ... */
+     </span>}
+  };
+  <span class="comment">// Convert and return the code 
+  </span>TokenStream::from(code_block)
+}</code></pre></div>
+<p>Just insert a call to procout before the conversion and return step.</p>
+
+<div class="example-wrap ignore"><a href="#" class="tooltip" title="This example is not tested">ⓘ</a><pre class="rust rust-example-rendered"><code><span class="kw">use </span>proc_macro::{TokenStream};
+<span class="kw">use </span>proc_macro2::{Span}; 
+<span class="kw">use </span>procout::{procout}; <span class="comment">// Look!
+</span><span class="kw">use </span>quote::{quote};
+<span class="kw">use </span>syn::{Ident};
+ 
+<span class="attr">#[proc_macro]
+</span><span class="kw">pub fn </span>ast(input: TokenStream) -&gt; TokenStream {
+  <span class="kw">let </span>module_ident = Ident::new(<span class="string">"this_module"</span>, Span::mixed_site());
+  <span class="kw">let </span>code_block: proc_macro2::TokenStream = <span class="macro">quote!</span>{  
+     <span class="kw">pub mod </span>#module_ident {
+       <span class="comment">/* ... some truly fantastic code, well done ... */
+     </span>}
+  };
+
+  <span class="comment">// Look!
+  </span>procout(<span class="kw-2">&amp;</span>code_block, <span class="prelude-val">Some</span>(module_ident), <span class="prelude-val">Some</span>(<span class="string">"a/valid/path/string"</span>));
+
+  <span class="comment">// Convert and return the code 
+  </span>TokenStream::from(code_block)
+}</code></pre></div>
+<p>By calling <code>cargo test --features procout</code>, the code will print
+to the <code>a/valid/path/string</code> specified as a file corresponding to <code>module_ident</code>.
+By default, the path string is the local <code>tests</code> directory, so <strong>after</strong> the first run using the <code>procout</code>
+feature, it’s possible to run something like <code>cargo test --test module_ident</code> and get better errors
+from the compiler.</p>
+<h4 id="now-with-these-splendid-new-capabilities"><a class="doc-anchor" href="#now-with-these-splendid-new-capabilities">§</a>Now with these splendid <em>new</em> capabilities:</h4>
+<ul>
+<li>A unit test module will be generated with a no-op test that just imports the module named in <code>module_ident</code>.</li>
+<li><code>module_ident</code> should be the name of a generated module.</li>
+<li>If no path is specified, the default path will be the current working directory’s <code>tests</code> subfolder,</li>
+<li>If no <code>module_ident</code> is specified, the default will be a generic timestamp.</li>
+</ul>
+<h4 id="warning"><a class="doc-anchor" href="#warning">§</a>Warning:</h4>
+<p>This will overwrite whatever’s at the specified path, so be careful when prototyping.</p>
+<h3 id="features"><a class="doc-anchor" href="#features">§</a>Features</h3>
+<ul>
+<li><code>procout</code> Outputs the macro to a file. Calling <code>procout</code> with this feature disabled is an intentional no-op.</li>
+<li><code>formatted</code> Calls <code>rustfmt</code> on the created file. This is enabled by default and is recommended.</li>
+<li><code>notification</code> Prints a notification to stdout on success. This is enabled by default.</li>
+</ul>
+</div></details><h2 id="statics" class="section-header">Statics<a href="#statics" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="static" href="static.TIMESTAMP_FORMAT.html" title="static procout::TIMESTAMP_FORMAT">TIMESTAM<wbr>P_<wbr>FORMAT</a></div><div class="desc docblock-short">The format used for default timestamped file names</div></li></ul><h2 id="functions" class="section-header">Functions<a href="#functions" class="anchor">§</a></h2><ul class="item-table"><li><div class="item-name"><a class="fn" href="fn.procout.html" title="fn procout::procout">procout</a></div><div class="desc docblock-short">Handle printing code to a file</div></li></ul></section></div></main></body></html>

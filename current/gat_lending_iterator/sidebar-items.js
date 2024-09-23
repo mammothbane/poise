@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["Chain","Cloned","Enumerate","Filter","FilterMap","IntoIter","IntoLending","LendRefs","LendRefsMut","Map","Skip","StepBy","Take","TakeWhile","Windows","WindowsMut","Zip"],"trait":["LendingIterator","OptionTrait","SingleArgFn","SingleArgFnMut","SingleArgFnOnce","ToLendingIterator"]};
